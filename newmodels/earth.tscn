@@ -1,0 +1,142 @@
+[gd_scene load_steps=18 format=3 uid="uid://c44pyh7arqct6"]
+
+[ext_resource type="Texture2D" uid="uid://ci8gqriebf0nt" path="res://textures/earth/Earth_Diffuse_6K.jpg" id="1_yobws"]
+[ext_resource type="Texture2D" uid="uid://bqlxj7iilr754" path="res://textures/earth/Earth_Illumination_6K.jpg" id="2_hadjq"]
+[ext_resource type="Texture2D" uid="uid://r16dmjcd2rel" path="res://textures/earth/Earth_NormalNRM_6K.jpg" id="3_tqpdi"]
+[ext_resource type="Texture2D" uid="uid://ck6lf2w35r27a" path="res://textures/earth/Earth_Glossiness_6K.jpg" id="4_2b2ah"]
+[ext_resource type="Texture2D" uid="uid://bhpawa8mrw24p" path="res://textures/earth/Earth_Clouds_6K.jpg" id="5_0lg1o"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_57w8f"]
+albedo_texture = ExtResource("1_yobws")
+roughness_texture = ExtResource("4_2b2ah")
+emission_enabled = true
+emission_texture = ExtResource("2_hadjq")
+normal_enabled = true
+normal_texture = ExtResource("3_tqpdi")
+
+[sub_resource type="SphereMesh" id="SphereMesh_f2m5j"]
+material = SubResource("StandardMaterial3D_57w8f")
+radius = 28.0
+height = 56.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_o0flw"]
+blend_mode = 1
+albedo_texture = ExtResource("5_0lg1o")
+albedo_texture_force_srgb = true
+
+[sub_resource type="SphereMesh" id="SphereMesh_k0h6v"]
+material = SubResource("StandardMaterial3D_o0flw")
+radius = 28.05
+height = 56.05
+
+[sub_resource type="Animation" id="Animation_xh8le"]
+length = 140.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 140),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(0, 6.28319, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_t2a2m"]
+resource_name = "Rotation"
+length = 200.0
+loop_mode = 1
+step = 50.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 200),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(0, 6.28319, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_vcj4f"]
+_data = {
+&"RESET": SubResource("Animation_xh8le"),
+&"Rotation": SubResource("Animation_t2a2m")
+}
+
+[sub_resource type="Animation" id="Animation_yb7gb"]
+length = 120.0
+loop_mode = 1
+step = 50.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 120),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(0, 6.28319, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_vyawa"]
+resource_name = "Rotation"
+length = 700.0
+loop_mode = 1
+step = 100.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 700),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(0, 6.28319, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_oioo5"]
+_data = {
+&"RESET": SubResource("Animation_yb7gb"),
+&"Rotation": SubResource("Animation_vyawa")
+}
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_lrdoc"]
+friction = 0.0
+bounce = 0.2
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_3wphf"]
+
+[node name="Earth" type="MeshInstance3D"]
+mesh = SubResource("SphereMesh_f2m5j")
+
+[node name="Clouds" type="MeshInstance3D" parent="."]
+mesh = SubResource("SphereMesh_k0h6v")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Clouds"]
+libraries = {
+&"": SubResource("AnimationLibrary_vcj4f")
+}
+autoplay = "RESET"
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_oioo5")
+}
+autoplay = "RESET"
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+physics_material_override = SubResource("PhysicsMaterial_lrdoc")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(92.265, 0, 0, 0, 92.265, 0, 0, 0, 92.265, 0, 0, 0)
+shape = SubResource("SphereShape3D_3wphf")

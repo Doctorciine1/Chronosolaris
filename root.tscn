@@ -1,0 +1,263 @@
+[gd_scene load_steps=19 format=3 uid="uid://jwdd7eft15ie"]
+
+[ext_resource type="Texture2D" uid="uid://bim4r7ovo85x1" path="res://skybox/8k_stars_milky_way.jpg" id="1_pxdv8"]
+[ext_resource type="PackedScene" uid="uid://c5apjim73uktx" path="res://newmodels/sun.tscn" id="2_nr6uu"]
+[ext_resource type="PackedScene" uid="uid://c44pyh7arqct6" path="res://newmodels/earth.tscn" id="3_vw1ju"]
+[ext_resource type="PackedScene" uid="uid://drnxu64x4gule" path="res://newmodels/moon.tscn" id="4_28aoi"]
+[ext_resource type="PackedScene" uid="uid://bsdoldr0uneew" path="res://newmodels/mercury.tscn" id="5_jnlp7"]
+[ext_resource type="PackedScene" uid="uid://pns6bpf1tlwu" path="res://newmodels/venus.tscn" id="6_l8v81"]
+[ext_resource type="PackedScene" uid="uid://c8vhxsrmnkmw6" path="res://newmodels/mars.tscn" id="7_vyht1"]
+[ext_resource type="PackedScene" uid="uid://bqidstyd4oxb3" path="res://newmodels/jupiter.tscn" id="8_bf3um"]
+[ext_resource type="PackedScene" uid="uid://cmb0ph7q0k6v4" path="res://newmodels/saturn.tscn" id="9_huihk"]
+[ext_resource type="PackedScene" uid="uid://8ebmqy6svxjo" path="res://newmodels/neptune.tscn" id="10_tw3kd"]
+[ext_resource type="PackedScene" uid="uid://ctl3xv88sm8sm" path="res://newmodels/uranus.tscn" id="11_gd4vy"]
+
+[sub_resource type="GDScript" id="GDScript_qw60f"]
+resource_name = "planet placement"
+script/source = "extends Node3D
+
+# Масштаб для планет в сцене (1 единица = 10 000 км)
+var distance_scale = 10000
+
+var distances = {
+	\"Mercury\": 0.29,
+	\"Venus\": 0.31,
+	\"Earth\": 0.38,
+	\"Mars\": 0.45,
+	\"Jupiter\": 0.73,
+	\"Saturn\": 1.0,
+	\"Uranus\": 1.4,
+	\"Neptune\": 2.0
+}
+
+var orbital_speeds = {
+	\"Mercury\": 4.15,
+	\"Venus\": 1.62,
+	\"Earth\": 1.00,
+	\"Mars\": 0.53,
+	\"Jupiter\": 0.08,
+	\"Saturn\": 0.03,
+	\"Uranus\": 0.011,
+	\"Neptune\": 0.006
+}
+
+var sun_radius = 3000
+var time_passed = 0.0
+var time_speed = 1
+
+@warning_ignore(\"integer_division\")
+var moon_distance = 784400 / distance_scale
+var moon_speed = 13.176
+
+func _ready():
+	place_planets()
+	draw_all_orbits()
+
+func _process(delta):
+	time_passed += delta * time_speed
+	var sun_position = Vector3.ZERO
+	var planets_node = $SolarSystem/Planets
+
+	for planet_name in distances.keys():
+		var planet = planets_node.get_node(planet_name)
+		var distance_km = distances[planet_name] * 149.6e6
+		var distance_units = distance_km / distance_scale
+		if distance_units < sun_radius:
+			distance_units = sun_radius
+
+		var angle = -time_passed * orbital_speeds[planet_name]
+		var x = cos(angle) * distance_units
+		var z = sin(angle) * distance_units
+		planet.position = sun_position + Vector3(x, 0, z)
+
+		if planet_name == \"Earth\":
+			move_moon(planet)
+
+func place_planets():
+	var sun_position = Vector3.ZERO
+	var planets_node = $SolarSystem/Planets
+
+	for planet_name in distances.keys():
+		var planet = planets_node.get_node(planet_name)
+		var distance_km = distances[planet_name] * 149.6e6
+		var distance_units = distance_km / distance_scale
+		if distance_units < sun_radius:
+			distance_units = sun_radius
+
+		planet.position = sun_position + Vector3(distance_units, 0, 0)
+
+func move_moon(earth_node):
+	var moon_node = earth_node.get_node(\"Moon\")
+	var angle = -time_passed * moon_speed
+	var x = cos(angle) * moon_distance
+	var z = sin(angle) * moon_distance
+	moon_node.position = Vector3(x, 0, z)
+
+func draw_all_orbits():
+	var existing = $SolarSystem.get_node_or_null(\"Orbits\")
+	if existing:
+		existing.queue_free()
+
+	var orbits = Node3D.new()
+	orbits.name = \"Orbits\"
+	$SolarSystem.add_child(orbits)
+
+	for planet_name in distances.keys():
+		var distance_km = distances[planet_name] * 104.6e6
+		var radius = distance_km / distance_scale
+		if radius < sun_radius:
+			radius = sun_radius
+
+		var orbit = draw_orbit(radius)
+		orbits.add_child(orbit)
+
+func draw_orbit(radius: float) -> MeshInstance3D:
+	var mesh := ImmediateMesh.new()
+	var segments := 1024
+	mesh.surface_begin(Mesh.PRIMITIVE_LINE_STRIP)
+
+	for i in range(segments + 1):
+		var angle := TAU * i / segments
+		var x := cos(angle) * radius
+		var z := sin(angle) * radius
+		mesh.surface_add_vertex(Vector3(x, 0, z))
+
+	mesh.surface_end()
+
+	var mesh_instance := MeshInstance3D.new()
+	mesh_instance.mesh = mesh
+
+	var mat := StandardMaterial3D.new()
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.albedo_color = Color(1, 1, 1, 0.3)
+	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	mesh_instance.material_override = mat
+
+	return mesh_instance
+"
+
+[sub_resource type="GDScript" id="GDScript_gd4vy"]
+script/source = "extends CharacterBody3D
+
+const SPEED = 700.0
+const SPRINT_MULTIPLIER = 2.0
+const MOUSE_SENSITIVITY = 0.002
+
+@onready var camera = $Head/Camera3D  # Убедись, что у CharacterBody3D есть дочерняя Camera3D
+
+func _ready():
+	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+
+func _physics_process(_delta):
+	# Определяем скорость спринта
+	var current_speed = SPEED
+	if Input.is_action_pressed(\"sprint\"):
+		current_speed *= SPRINT_MULTIPLIER
+
+	# Получаем направление движения
+	var input_dir = Input.get_vector(\"ui_left\", \"ui_right\", \"ui_up\", \"ui_down\")
+	var direction = camera.global_transform.basis * Vector3(input_dir.x, 0, input_dir.y)
+	
+	if direction.length() > 0:
+		direction = direction.normalized()
+		velocity = direction * current_speed
+	else:
+		velocity = Vector3.ZERO
+	
+	move_and_slide()
+
+func _input(event):
+	if event is InputEventKey and event.keycode == KEY_ESCAPE:
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)  # Освободить курсор
+	
+	if event is InputEventMouseMotion:
+		rotate_y(-event.relative.x * MOUSE_SENSITIVITY)  # Поворот влево/вправо
+		camera.rotate_x(-event.relative.y * MOUSE_SENSITIVITY)  # Поворот вверх/вниз
+		camera.rotation_degrees.x = clamp(camera.rotation_degrees.x, -89, 89)  # Ограничение угла обзора
+"
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_gd4vy"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_gd4vy"]
+points = PackedVector3Array(-0.125207, -0.532801, -0.480507, 0.0227831, 0.47607, 0.498884, 0.169713, 0.559144, 0.464172, 0.231051, -0.803591, 0.320455, 0.40741, 0.651043, -0.243523, -0.482789, 0.594843, 0.0822132, -0.362868, -0.682312, 0.289697, 0.469044, -0.654529, -0.0662713, -0.127444, 0.842701, -0.338103, -0.393435, -0.683942, -0.244717, 0.438255, 0.623309, 0.200849, 0.0841477, 0.977454, 0.114795, -0.0682023, -0.976458, -0.12927, 0.20055, -0.563129, -0.451454, -0.185527, 0.595453, -0.453475, -0.273363, 0.592268, 0.407754, -0.00693649, -0.476823, 0.49966, 0.375821, -0.588614, 0.316955, 0.111579, 0.563059, -0.481177, -0.41725, 0.527866, -0.270497, -0.484546, -0.596972, -0.0665097, -0.279747, 0.908561, 0.0533361, -0.250197, -0.880712, 0.205319, 0.263647, -0.902771, -0.127394, 0.293368, 0.871526, -0.157196, 0.373412, -0.526319, -0.328246, 0.499663, 0.476641, -0.00688856, 0.0531056, 0.875001, 0.324703, -0.154543, -0.590854, 0.465879, -0.0972799, -0.782358, -0.398188, -0.387649, -0.498171, 0.31565, -0.30068, -0.587995, -0.388901)
+
+[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_lwpid"]
+panorama = ExtResource("1_pxdv8")
+
+[sub_resource type="Sky" id="Sky_fs5rf"]
+sky_material = SubResource("PanoramaSkyMaterial_lwpid")
+
+[sub_resource type="Environment" id="Environment_2pgaa"]
+background_mode = 2
+background_energy_multiplier = 0.8
+sky = SubResource("Sky_fs5rf")
+glow_enabled = true
+glow_bloom = 0.2
+glow_blend_mode = 1
+adjustment_enabled = true
+adjustment_brightness = 1.05
+adjustment_contrast = 1.05
+adjustment_saturation = 1.3
+
+[node name="root" type="Node3D"]
+script = SubResource("GDScript_qw60f")
+
+[node name="SolarSystem" type="Node3D" parent="."]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
+
+[node name="Sun" parent="SolarSystem" instance=ExtResource("2_nr6uu")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 0, 0, 0)
+
+[node name="Planets" type="Node3D" parent="SolarSystem"]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 0, 0, 0)
+
+[node name="Earth" parent="SolarSystem/Planets" instance=ExtResource("3_vw1ju")]
+skeleton = NodePath("../../..")
+
+[node name="Moon" parent="SolarSystem/Planets/Earth" instance=ExtResource("4_28aoi")]
+skeleton = NodePath("../../../..")
+
+[node name="Mercury" parent="SolarSystem/Planets" instance=ExtResource("5_jnlp7")]
+skeleton = NodePath("../../..")
+
+[node name="Venus" parent="SolarSystem/Planets" instance=ExtResource("6_l8v81")]
+skeleton = NodePath("../../..")
+
+[node name="Mars" parent="SolarSystem/Planets" instance=ExtResource("7_vyht1")]
+transform = Transform3D(1, 0, 4.46638e-06, 0, 1, 0, -4.46638e-06, 0, 1, 638.61, 0, 5930.34)
+skeleton = NodePath("../../..")
+
+[node name="Jupiter" parent="SolarSystem/Planets" instance=ExtResource("8_bf3um")]
+skeleton = NodePath("../../..")
+
+[node name="Saturn" parent="SolarSystem/Planets" instance=ExtResource("9_huihk")]
+transform = Transform3D(0.891007, -0.453991, 0, 0.453991, 0.891007, 0, 0, 0, 1, 78.1042, 0, 6929.98)
+
+[node name="Neptune" parent="SolarSystem/Planets" instance=ExtResource("10_tw3kd")]
+transform = Transform3D(1, 0, 0, 0, 0.882948, -0.469472, 0, 0.469472, 0.882948, 1035.07, 0, 5496.02)
+
+[node name="Uranus" parent="SolarSystem/Planets" instance=ExtResource("11_gd4vy")]
+transform = Transform3D(-1.06656e-07, 0.297361, 2.42181, 0, 2.42181, -0.297361, -2.44, -1.29981e-08, -1.05861e-07, 0, 0, 5501.77)
+
+[node name="Orbits" type="Node3D" parent="SolarSystem"]
+
+[node name="Player" type="CharacterBody3D" parent="."]
+transform = Transform3D(-0.962517, 0, 0.271222, 0, 1, 0, -0.271222, 0, -0.962517, 1622.73, -0.378976, -95.1225)
+script = SubResource("GDScript_gd4vy")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Player"]
+visible = false
+mesh = SubResource("CapsuleMesh_gd4vy")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
+shape = SubResource("ConvexPolygonShape3D_gd4vy")
+
+[node name="Head" type="Node3D" parent="Player"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.712863, -0.000284076)
+
+[node name="Camera3D" type="Camera3D" parent="Player/Head"]
+fov = 60.0
+far = 70000.0
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_2pgaa")

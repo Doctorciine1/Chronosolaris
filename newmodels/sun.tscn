@@ -1,0 +1,158 @@
+[gd_scene load_steps=11 format=3 uid="uid://c5apjim73uktx"]
+
+[ext_resource type="Texture2D" uid="uid://dtyjlf2ax1cng" path="res://textures/8k_sun.jpg" id="1_lx62k"]
+
+[sub_resource type="Shader" id="Shader_3elkr"]
+code = "// NOTE: Shader automatically converted from Godot Engine 4.3.stable's StandardMaterial3D.
+
+shader_type spatial;
+render_mode blend_mix, depth_draw_opaque, cull_back, diffuse_burley, specular_schlick_ggx;
+
+uniform vec4 albedo : source_color;
+uniform sampler2D texture_albedo : source_color, filter_linear_mipmap, repeat_enable;
+uniform float point_size : hint_range(0.1, 128.0, 0.1);
+
+uniform float roughness : hint_range(0.0, 1.0);
+uniform sampler2D texture_metallic : hint_default_white, filter_linear_mipmap, repeat_enable;
+uniform vec4 metallic_texture_channel;
+uniform sampler2D texture_roughness : hint_roughness_r, filter_linear_mipmap, repeat_enable;
+
+uniform float specular : hint_range(0.0, 1.0, 0.01);
+uniform float metallic : hint_range(0.0, 1.0, 0.01);
+
+uniform sampler2D texture_emission : source_color, hint_default_black, filter_linear_mipmap, repeat_enable;
+uniform vec4 emission : source_color;
+uniform float emission_energy : hint_range(0.0, 100.0, 0.01);
+
+uniform vec3 uv1_scale;
+uniform vec3 uv1_offset;
+uniform vec3 uv2_scale;
+uniform vec3 uv2_offset;
+
+void vertex() {
+	UV = UV * uv1_scale.xy + uv1_offset.xy;
+	VERTEX.y += sin(TIME * 0.5 + (VERTEX.x + VERTEX.z) * 0.2) * 10.0;
+	VERTEX.x += sin(TIME * 0.5 + (VERTEX.y + VERTEX.z) * 0.2) * 10.0;
+	VERTEX.z += sin(TIME * 0.5 + (VERTEX.x + VERTEX.y) * 0.2) * 10.0;
+}
+
+void fragment() {
+	vec2 base_uv = UV;
+
+	vec4 albedo_tex = texture(texture_albedo, base_uv);
+	ALBEDO = albedo.rgb * albedo_tex.rgb;
+
+	float metallic_tex = dot(texture(texture_metallic, base_uv), metallic_texture_channel);
+	METALLIC = metallic_tex * metallic;
+	SPECULAR = specular;
+
+	vec4 roughness_texture_channel = vec4(1.0, 0.0, 0.0, 0.0);
+	float roughness_tex = dot(texture(texture_roughness, base_uv), roughness_texture_channel);
+	ROUGHNESS = roughness_tex * roughness;
+
+	// Emission: Enabled
+	vec3 emission_tex = texture(texture_emission, base_uv).rgb;
+	// Emission Operator: Add
+	EMISSION = (emission.rgb + emission_tex) * emission_energy;
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ankn7"]
+render_priority = 0
+shader = SubResource("Shader_3elkr")
+shader_parameter/albedo = Color(1, 1, 1, 1)
+shader_parameter/texture_albedo = ExtResource("1_lx62k")
+shader_parameter/point_size = 1.0
+shader_parameter/roughness = 1.0
+shader_parameter/metallic_texture_channel = Vector4(0, 0, 0, 0)
+shader_parameter/specular = 0.5
+shader_parameter/metallic = 0.0
+shader_parameter/texture_emission = ExtResource("1_lx62k")
+shader_parameter/emission = Color(0, 0, 0, 1)
+shader_parameter/emission_energy = 1.5
+shader_parameter/uv1_scale = Vector3(1, 1, 1)
+shader_parameter/uv1_offset = Vector3(0, 0, 0)
+shader_parameter/uv2_scale = Vector3(1, 1, 1)
+shader_parameter/uv2_offset = Vector3(0, 0, 0)
+
+[sub_resource type="SphereMesh" id="SphereMesh_tted1"]
+material = SubResource("ShaderMaterial_ankn7")
+radius = 3000.0
+height = 6000.0
+
+[sub_resource type="Animation" id="Animation_l4ngi"]
+length = 1200.0
+loop_mode = 1
+step = 50.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1200),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(0, 6.28319, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_vtfna"]
+resource_name = "ROTATE"
+length = 1000.0
+step = 50.0
+
+[sub_resource type="Animation" id="Animation_gqym0"]
+resource_name = "Rotate"
+length = 1000.0
+loop_mode = 1
+step = 50.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1000),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(0, 6.28319, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_0hr47"]
+_data = {
+&"RESET": SubResource("Animation_l4ngi"),
+&"ROTATE": SubResource("Animation_vtfna"),
+&"Rotate": SubResource("Animation_gqym0")
+}
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_p25b8"]
+friction = 0.0
+bounce = 0.2
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_p25b8"]
+radius = 1000.0
+
+[node name="Sun" type="MeshInstance3D"]
+mesh = SubResource("SphereMesh_tted1")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_0hr47")
+}
+autoplay = "RESET"
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+physics_material_override = SubResource("PhysicsMaterial_p25b8")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(3.37, 0, 0, 0, 3.37, 0, 0, 0, 3.37, 0, 0, 0)
+shape = SubResource("SphereShape3D_p25b8")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+light_color = Color(1, 1, 0.780392, 1)
+light_energy = 5000.0
+shadow_enabled = true
+shadow_opacity = 0.0
+omni_range = 15000.0

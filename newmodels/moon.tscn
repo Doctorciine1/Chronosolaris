@@ -1,0 +1,75 @@
+[gd_scene load_steps=10 format=3 uid="uid://drnxu64x4gule"]
+
+[ext_resource type="Texture2D" uid="uid://cjojmr8i7e85m" path="res://textures/moon/iloveimg-converted/8K Moon_Diff_16K.jpg" id="1_rjvio"]
+[ext_resource type="Texture2D" uid="uid://ciu1j4jfq3b0p" path="res://textures/moon/iloveimg-converted/8K Moon_Disp_8k.jpg" id="2_7gw7d"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2g4ib"]
+albedo_texture = ExtResource("1_rjvio")
+metallic = 0.75
+metallic_specular = 0.45
+metallic_texture = ExtResource("2_7gw7d")
+
+[sub_resource type="SphereMesh" id="SphereMesh_epoav"]
+material = SubResource("StandardMaterial3D_2g4ib")
+radius = 7.6
+height = 15.2
+
+[sub_resource type="Animation" id="Animation_rjvio"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_e0epg"]
+resource_name = "Rotate"
+length = 3000.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 3000),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(0, 6.28319, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_bq21b"]
+_data = {
+&"RESET": SubResource("Animation_rjvio"),
+&"Rotate": SubResource("Animation_e0epg")
+}
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_cww0t"]
+friction = 0.0
+bounce = 0.2
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_k80jv"]
+
+[node name="Moon" type="MeshInstance3D"]
+mesh = SubResource("SphereMesh_epoav")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_bq21b")
+}
+autoplay = "Rotate"
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+physics_material_override = SubResource("PhysicsMaterial_cww0t")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(28.05, 0, 0, 0, 28.05, 0, 0, 0, 28.05, 0, 0, 0)
+shape = SubResource("SphereShape3D_k80jv")
