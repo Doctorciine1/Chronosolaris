@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://jwdd7eft15ie"]
+[gd_scene load_steps=20 format=3 uid="uid://jwdd7eft15ie"]
 
 [ext_resource type="Texture2D" uid="uid://bim4r7ovo85x1" path="res://skybox/8k_stars_milky_way.jpg" id="1_pxdv8"]
 [ext_resource type="PackedScene" uid="uid://c5apjim73uktx" path="res://newmodels/sun.tscn" id="2_nr6uu"]
@@ -11,6 +11,7 @@
 [ext_resource type="PackedScene" uid="uid://cmb0ph7q0k6v4" path="res://newmodels/saturn.tscn" id="9_huihk"]
 [ext_resource type="PackedScene" uid="uid://8ebmqy6svxjo" path="res://newmodels/neptune.tscn" id="10_tw3kd"]
 [ext_resource type="PackedScene" uid="uid://ctl3xv88sm8sm" path="res://newmodels/uranus.tscn" id="11_gd4vy"]
+[ext_resource type="AudioStream" uid="uid://bg28i30nkx2il" path="res://sound/Rijko — Letters from Myself (www.hotplayer.ru).mp3" id="12_qw60f"]
 
 [sub_resource type="GDScript" id="GDScript_qw60f"]
 resource_name = "planet placement"
@@ -189,7 +190,7 @@ sky_material = SubResource("PanoramaSkyMaterial_lwpid")
 
 [sub_resource type="Environment" id="Environment_2pgaa"]
 background_mode = 2
-background_energy_multiplier = 0.8
+background_energy_multiplier = 0.54
 sky = SubResource("Sky_fs5rf")
 glow_enabled = true
 glow_bloom = 0.2
@@ -261,3 +262,10 @@ far = 70000.0
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_2pgaa")
+
+[node name="Music" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("12_qw60f")
+volume_db = -30.0
+autoplay = true
+bus = &"Music"
+parameters/looping = true
