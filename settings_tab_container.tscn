@@ -1,12 +1,64 @@
-[gd_scene load_steps=8 format=3 uid="uid://270c05r50xn3"]
+[gd_scene load_steps=10 format=3 uid="uid://270c05r50xn3"]
 
 [sub_resource type="GDScript" id="GDScript_q5k23"]
 script/source = "extends Control
 
-
+@onready var master_slider: HSlider = $TabContainer/Audio/MarginContainer/VBoxContainer/Label/Master
+@onready var music_slider: HSlider = $TabContainer/Audio/MarginContainer/VBoxContainer/Label2/Music
+@onready var sounds_slider: HSlider = $TabContainer/Audio/MarginContainer/VBoxContainer/Label3/Sounds
 
 func _on_exit_button_pressed() -> void:
-	get_tree().change_scene_to_file(\"res://main_menu.tscn\") # Replace with function body.
+	get_tree().change_scene_to_file(\"res://main_menu.tscn\")
+
+func _ready() -> void:
+	master_slider.value_changed.connect(_on_master_value_changed)
+	music_slider.value_changed.connect(_on_music_value_changed)
+	sounds_slider.value_changed.connect(_on_sounds_value_changed)
+
+	load_volumes()
+
+func _on_master_value_changed(value: float) -> void:
+	AudioServer.set_bus_volume_db(AudioServer.get_bus_index(\"Master\"), linear_to_db(value))
+	save_volume(\"master_volume\", value)
+
+func _on_music_value_changed(value: float) -> void:
+	AudioServer.set_bus_volume_db(AudioServer.get_bus_index(\"Music\"), linear_to_db(value))
+	save_volume(\"music_volume\", value)
+
+func _on_sounds_value_changed(value: float) -> void:
+	AudioServer.set_bus_volume_db(AudioServer.get_bus_index(\"Sounds\"), linear_to_db(value))
+	save_volume(\"sounds_volume\", value)
+
+func save_volume(key: String, volume_value: float) -> void:
+	var config = ConfigFile.new()
+	config.load(\"user://settings.cfg\")
+	config.set_value(\"audio\", key, volume_value)
+	config.save(\"user://settings.cfg\")
+
+func load_volumes() -> void:
+	var config = ConfigFile.new()
+	config.load(\"user://settings.cfg\")
+
+	if config.has_section_key(\"audio\", \"master_volume\"):
+		master_slider.value = config.get_value(\"audio\", \"master_volume\")
+		_on_master_value_changed(master_slider.value)
+	else:
+		master_slider.value = 0.5
+		_on_master_value_changed(0.5)
+
+	if config.has_section_key(\"audio\", \"music_volume\"):
+		music_slider.value = config.get_value(\"audio\", \"music_volume\")
+		_on_music_value_changed(music_slider.value)
+	else:
+		music_slider.value = 0.5
+		_on_music_value_changed(0.5)
+
+	if config.has_section_key(\"audio\", \"sounds_volume\"):
+		sounds_slider.value = config.get_value(\"audio\", \"sounds_volume\")
+		_on_sounds_value_changed(sounds_slider.value)
+	else:
+		sounds_slider.value = 0.5
+		_on_sounds_value_changed(0.5)
 "
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_q5k23"]
@@ -23,6 +75,22 @@ bg_color = Color(0.152941, 0.513726, 0.819608, 0.560784)
 border_color = Color(0.702854, 0.808245, 0.964318, 1)
 border_blend = true
 corner_detail = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_olj1q"]
+bg_color = Color(0.170166, 0.547546, 0.65607, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+shadow_size = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rds6j"]
+bg_color = Color(0.376783, 0.745851, 0.975528, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+shadow_size = 2
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_q5k23"]
 
@@ -89,6 +157,8 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 156.0
+offset_right = -156.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/margin_left = 24
@@ -104,22 +174,67 @@ alignment = 1
 [node name="Label" type="Label" parent="TabContainer/Audio/MarginContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
-text = "1"
+text = "Master"
+
+[node name="Master" type="HSlider" parent="TabContainer/Audio/MarginContainer/VBoxContainer/Label"]
+layout_mode = 0
+offset_left = 88.0
+offset_top = 6.0
+offset_right = 576.0
+offset_bottom = 22.0
+theme_override_styles/grabber_area = SubResource("StyleBoxFlat_olj1q")
+theme_override_styles/grabber_area_highlight = SubResource("StyleBoxFlat_rds6j")
+max_value = 1.0
+step = 0.1
+value = 0.5
 
 [node name="Label2" type="Label" parent="TabContainer/Audio/MarginContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
-text = "2"
+text = "Music"
+
+[node name="Music" type="HSlider" parent="TabContainer/Audio/MarginContainer/VBoxContainer/Label2"]
+offset_left = 88.0
+offset_top = 6.0
+offset_right = 576.0
+offset_bottom = 22.0
+theme_override_styles/grabber_area = SubResource("StyleBoxFlat_olj1q")
+theme_override_styles/grabber_area_highlight = SubResource("StyleBoxFlat_rds6j")
+max_value = 1.0
+step = 0.1
+value = 0.5
 
 [node name="Label3" type="Label" parent="TabContainer/Audio/MarginContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
-text = "3"
+text = "Sounds"
+
+[node name="Sounds" type="HSlider" parent="TabContainer/Audio/MarginContainer/VBoxContainer/Label3"]
+offset_left = 88.0
+offset_top = 6.0
+offset_right = 576.0
+offset_bottom = 22.0
+theme_override_styles/grabber_area = SubResource("StyleBoxFlat_olj1q")
+theme_override_styles/grabber_area_highlight = SubResource("StyleBoxFlat_rds6j")
+max_value = 1.0
+step = 0.1
+value = 0.5
 
 [node name="Label4" type="Label" parent="TabContainer/Audio/MarginContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "4"
+
+[node name="4" type="HSlider" parent="TabContainer/Audio/MarginContainer/VBoxContainer/Label4"]
+offset_left = 88.0
+offset_top = 6.0
+offset_right = 576.0
+offset_bottom = 22.0
+theme_override_styles/grabber_area = SubResource("StyleBoxFlat_olj1q")
+theme_override_styles/grabber_area_highlight = SubResource("StyleBoxFlat_rds6j")
+max_value = 1.0
+step = 0.1
+value = 0.5
 
 [node name="Controls" type="TabBar" parent="TabContainer"]
 visible = false
@@ -131,6 +246,8 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 156.0
+offset_right = -220.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/margin_left = 24
@@ -173,6 +290,8 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 156.0
+offset_right = -220.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/margin_left = 24

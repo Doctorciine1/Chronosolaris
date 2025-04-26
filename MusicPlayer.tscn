@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://bw1bwpbg3a70d"]
+
+[ext_resource type="AudioStream" uid="uid://bg28i30nkx2il" path="res://sound/Rijko — Letters from Myself (www.hotplayer.ru).mp3" id="1_1a72i"]
+
+[node name="Node2D" type="Node2D"]
+
+[node name="BackgroundMusicPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("1_1a72i")
+volume_db = -30.0
+autoplay = true
+bus = &"Music"

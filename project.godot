@@ -14,6 +14,10 @@ config/name="ChronoSolaris"
 run/main_scene="uid://dnpmm2gxfqdpr"
 config/features=PackedStringArray("4.4", "Mobile")
 
+[autoload]
+
+MusicPlayer="*res://MusicPlayer.tscn"
+
 [input]
 
 ui_left={
