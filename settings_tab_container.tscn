@@ -15,50 +15,29 @@ func _ready() -> void:
 	music_slider.value_changed.connect(_on_music_value_changed)
 	sounds_slider.value_changed.connect(_on_sounds_value_changed)
 
-	load_volumes()
+	load_current_volumes() # Загружаем текущие значения громкости для отображения
 
 func _on_master_value_changed(value: float) -> void:
 	AudioServer.set_bus_volume_db(AudioServer.get_bus_index(\"Master\"), linear_to_db(value))
-	save_volume(\"master_volume\", value)
+	GameSettings.save_volume(\"master\", value)
 
 func _on_music_value_changed(value: float) -> void:
 	AudioServer.set_bus_volume_db(AudioServer.get_bus_index(\"Music\"), linear_to_db(value))
-	save_volume(\"music_volume\", value)
+	GameSettings.save_volume(\"music\", value)
 
 func _on_sounds_value_changed(value: float) -> void:
 	AudioServer.set_bus_volume_db(AudioServer.get_bus_index(\"Sounds\"), linear_to_db(value))
-	save_volume(\"sounds_volume\", value)
+	GameSettings.save_volume(\"sounds\", value)
 
-func save_volume(key: String, volume_value: float) -> void:
-	var config = ConfigFile.new()
-	config.load(\"user://settings.cfg\")
-	config.set_value(\"audio\", key, volume_value)
-	config.save(\"user://settings.cfg\")
+func load_current_volumes() -> void:
+	var master_volume = db_to_linear(AudioServer.get_bus_volume_db(AudioServer.get_bus_index(\"Master\")))
+	master_slider.value = clamp(master_volume, 0.0, 1.0)
 
-func load_volumes() -> void:
-	var config = ConfigFile.new()
-	config.load(\"user://settings.cfg\")
+	var music_volume = db_to_linear(AudioServer.get_bus_volume_db(AudioServer.get_bus_index(\"Music\")))
+	music_slider.value = clamp(music_volume, 0.0, 1.0)
 
-	if config.has_section_key(\"audio\", \"master_volume\"):
-		master_slider.value = config.get_value(\"audio\", \"master_volume\")
-		_on_master_value_changed(master_slider.value)
-	else:
-		master_slider.value = 0.5
-		_on_master_value_changed(0.5)
-
-	if config.has_section_key(\"audio\", \"music_volume\"):
-		music_slider.value = config.get_value(\"audio\", \"music_volume\")
-		_on_music_value_changed(music_slider.value)
-	else:
-		music_slider.value = 0.5
-		_on_music_value_changed(0.5)
-
-	if config.has_section_key(\"audio\", \"sounds_volume\"):
-		sounds_slider.value = config.get_value(\"audio\", \"sounds_volume\")
-		_on_sounds_value_changed(sounds_slider.value)
-	else:
-		sounds_slider.value = 0.5
-		_on_sounds_value_changed(0.5)
+	var sounds_volume = db_to_linear(AudioServer.get_bus_volume_db(AudioServer.get_bus_index(\"Sounds\")))
+	sounds_slider.value = clamp(sounds_volume, 0.0, 1.0)
 "
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_q5k23"]
@@ -194,6 +173,7 @@ theme_override_font_sizes/font_size = 20
 text = "Music"
 
 [node name="Music" type="HSlider" parent="TabContainer/Audio/MarginContainer/VBoxContainer/Label2"]
+layout_mode = 0
 offset_left = 88.0
 offset_top = 6.0
 offset_right = 576.0
@@ -210,6 +190,7 @@ theme_override_font_sizes/font_size = 20
 text = "Sounds"
 
 [node name="Sounds" type="HSlider" parent="TabContainer/Audio/MarginContainer/VBoxContainer/Label3"]
+layout_mode = 0
 offset_left = 88.0
 offset_top = 6.0
 offset_right = 576.0
@@ -226,6 +207,7 @@ theme_override_font_sizes/font_size = 20
 text = "4"
 
 [node name="4" type="HSlider" parent="TabContainer/Audio/MarginContainer/VBoxContainer/Label4"]
+layout_mode = 0
 offset_left = 88.0
 offset_top = 6.0
 offset_right = 576.0

@@ -17,6 +17,7 @@ config/features=PackedStringArray("4.4", "Mobile")
 [autoload]
 
 MusicPlayer="*res://MusicPlayer.tscn"
+GameSettings="*res://GameSettings.gd"
 
 [input]
 
