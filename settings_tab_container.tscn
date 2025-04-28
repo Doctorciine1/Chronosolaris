@@ -204,19 +204,14 @@ value = 0.5
 [node name="Label4" type="Label" parent="TabContainer/Audio/MarginContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
-text = "4"
+text = "Mute"
 
-[node name="4" type="HSlider" parent="TabContainer/Audio/MarginContainer/VBoxContainer/Label4"]
+[node name="CheckBox" type="CheckBox" parent="TabContainer/Audio/MarginContainer/VBoxContainer/Label4"]
 layout_mode = 0
-offset_left = 88.0
-offset_top = 6.0
-offset_right = 576.0
-offset_bottom = 22.0
-theme_override_styles/grabber_area = SubResource("StyleBoxFlat_olj1q")
-theme_override_styles/grabber_area_highlight = SubResource("StyleBoxFlat_rds6j")
-max_value = 1.0
-step = 0.1
-value = 0.5
+offset_left = 76.0
+offset_top = 2.0
+offset_right = 100.0
+offset_bottom = 26.0
 
 [node name="Controls" type="TabBar" parent="TabContainer"]
 visible = false
