@@ -7,17 +7,17 @@ script/source = "extends Control
 @onready var music_slider: HSlider = $TabContainer/Audio/MarginContainer/VBoxContainer/Label2/Music
 @onready var sounds_slider: HSlider = $TabContainer/Audio/MarginContainer/VBoxContainer/Label3/Sounds
 @onready var mute_checkbox: CheckBox = $TabContainer/Audio/MarginContainer/VBoxContainer/Label4/MuteCheckBox
-@onready var brightness_slider: HSlider = $TabContainer/Graphics/MarginContainer/VBoxContainer/Brightness/BrightnessSlider
-@onready var brightness_manager = get_node(\"/root/BrightnessManager\")
 
 func _on_exit_button_pressed() -> void:
 	get_tree().change_scene_to_file(\"res://main_menu.tscn\")
+
 
 func _ready() -> void:
 	master_slider.value_changed.connect(_on_master_value_changed)
 	music_slider.value_changed.connect(_on_music_value_changed)
 	sounds_slider.value_changed.connect(_on_sounds_value_changed)
 	mute_checkbox.toggled.connect(_on_mute_toggled)
+
 
 	load_mute_state()
 	load_current_volumes() # Загружаем текущие значения громкости для отображения
@@ -38,11 +38,9 @@ func load_mute_state() -> void:
 	if config.has_section_key(\"audio\", \"muted\"):
 		var muted = config.get_value(\"audio\", \"muted\")
 		mute_checkbox.button_pressed = muted
-		
 		AudioServer.set_bus_mute(AudioServer.get_bus_index(\"Master\"), muted)
 	else:
 		mute_checkbox.button_pressed = false
-		
 		AudioServer.set_bus_mute(AudioServer.get_bus_index(\"Master\"), false)
 
 func _on_master_value_changed(value: float) -> void:
@@ -152,9 +150,10 @@ theme_override_font_sizes/font_size = 16
 theme_override_styles/panel = SubResource("StyleBoxFlat_q5k23")
 theme_override_styles/tab_selected = SubResource("StyleBoxFlat_vsd10")
 tab_alignment = 1
-current_tab = 0
+current_tab = 2
 
 [node name="Audio" type="TabBar" parent="TabContainer"]
+visible = false
 layout_mode = 2
 tabs_rearrange_group = 1
 metadata/_tab_index = 0
@@ -286,7 +285,6 @@ theme_override_font_sizes/font_size = 20
 text = "4"
 
 [node name="Graphics" type="TabBar" parent="TabContainer"]
-visible = false
 layout_mode = 2
 metadata/_tab_index = 2
 
@@ -331,6 +329,7 @@ min_value = 0.01
 max_value = 2.0
 step = 0.01
 value = 1.0
+editable = false
 
 [node name="Label3" type="Label" parent="TabContainer/Graphics/MarginContainer/VBoxContainer"]
 layout_mode = 2
