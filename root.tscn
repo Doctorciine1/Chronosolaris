@@ -238,7 +238,7 @@ transform = Transform3D(-1.06656e-07, 0.297361, 2.42181, 0, 2.42181, -0.297361, 
 [node name="Orbits" type="Node3D" parent="SolarSystem"]
 
 [node name="Player" type="CharacterBody3D" parent="."]
-transform = Transform3D(-0.962517, 0, 0.271222, 0, 1, 0, -0.271222, 0, -0.962517, 1622.73, -0.378976, -95.1225)
+transform = Transform3D(1, 0, 0, 0, 0.926561, 0.376143, 0, -0.376143, 0.926562, 0, 5927.86, 14226.1)
 script = SubResource("GDScript_gd4vy")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Player"]
@@ -259,7 +259,7 @@ far = 70000.0
 environment = SubResource("Environment_2pgaa")
 
 [node name="SideViewCamera" type="Camera3D" parent="."]
-transform = Transform3D(-0.0534017, 0.535738, -0.842694, 0.0338819, 0.844384, 0.534666, 0.997998, -1.11535e-08, -0.0632434, -5724.89, 3478.15, 0)
+transform = Transform3D(1, 0, 0, 0, 0.926561, 0.376143, 0, -0.376143, 0.926561, 0, 5927.86, 14223.6)
 far = 40000.0
 
 [node name="ScriptManager" type="Node3D" parent="."]
