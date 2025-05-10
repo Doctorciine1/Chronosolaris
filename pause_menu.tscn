@@ -1,0 +1,115 @@
+[gd_scene load_steps=7 format=3 uid="uid://8ncgpca1gwmg"]
+
+[ext_resource type="FontFile" uid="uid://bgj6dpb4kmscg" path="res://GRAMES.ttf" id="1_hdmo1"]
+[ext_resource type="Script" uid="uid://65okbakuony2" path="res://pause_menu.gd" id="1_nwcfo"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_nwcfo"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_05uyy"]
+bg_color = Color(0.101961, 0.427451, 0.698039, 0.8)
+corner_radius_top_left = 16
+corner_radius_top_right = 2
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 2
+shadow_size = 5
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_p81d2"]
+bg_color = Color(0.152941, 0.513726, 0.819608, 0.72549)
+corner_radius_top_left = 16
+corner_radius_top_right = 2
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 2
+shadow_size = 5
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2nc7s"]
+bg_color = Color(0.152941, 0.513726, 0.819608, 0.854902)
+corner_radius_top_left = 16
+corner_radius_top_right = 2
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 2
+shadow_size = 5
+shadow_offset = Vector2(0, 1)
+
+[node name="PauseMenu" type="CanvasLayer"]
+script = ExtResource("1_nwcfo")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 85.0
+grow_vertical = 2
+scale = Vector2(3.475, 3.475)
+size_flags_horizontal = 4
+size_flags_vertical = 0
+color = Color(0.176471, 0.176471, 0.176471, 0.419608)
+
+[node name="Label" type="Label" parent="."]
+offset_left = 47.0
+offset_top = 31.0
+offset_right = 237.0
+offset_bottom = 70.0
+theme_override_colors/font_color = Color(0.152941, 0.513726, 0.819608, 1)
+theme_override_fonts/font = ExtResource("1_hdmo1")
+theme_override_font_sizes/font_size = 31
+text = "Chronosolaris"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 12.0
+offset_top = -106.0
+offset_right = 267.0
+offset_bottom = 55.0
+grow_vertical = 2
+theme_override_constants/separation = 15
+
+[node name="ContinueButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_hover_color = Color(0.787759, 0.787759, 0.787759, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("1_hdmo1")
+theme_override_font_sizes/font_size = 20
+theme_override_styles/focus = SubResource("StyleBoxEmpty_nwcfo")
+theme_override_styles/hover = SubResource("StyleBoxFlat_05uyy")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_p81d2")
+theme_override_styles/normal = SubResource("StyleBoxFlat_2nc7s")
+text = "CONTINUE"
+
+[node name="SettingsButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_hover_color = Color(0.787759, 0.787759, 0.787759, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("1_hdmo1")
+theme_override_font_sizes/font_size = 20
+theme_override_styles/focus = SubResource("StyleBoxEmpty_nwcfo")
+theme_override_styles/hover = SubResource("StyleBoxFlat_05uyy")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_p81d2")
+theme_override_styles/normal = SubResource("StyleBoxFlat_2nc7s")
+text = "SETTINGS"
+
+[node name="MainMenuButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_hover_color = Color(0.787759, 0.787759, 0.787759, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("1_hdmo1")
+theme_override_font_sizes/font_size = 20
+theme_override_styles/focus = SubResource("StyleBoxEmpty_nwcfo")
+theme_override_styles/hover = SubResource("StyleBoxFlat_05uyy")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_p81d2")
+theme_override_styles/normal = SubResource("StyleBoxFlat_2nc7s")
+text = "LEAVE TO MENU"
+
+[connection signal="pressed" from="VBoxContainer/ContinueButton" to="." method="_on_continue_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/SettingsButton" to="." method="_on_settings_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/MainMenuButton" to="." method="_on_main_menu_button_pressed"]

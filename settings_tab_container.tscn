@@ -19,6 +19,7 @@ func _ready() -> void:
 	mute_checkbox.toggled.connect(_on_mute_toggled)
 
 
+
 	load_mute_state()
 	load_current_volumes() # Загружаем текущие значения громкости для отображения
 
@@ -331,10 +332,17 @@ step = 0.01
 value = 1.0
 editable = false
 
-[node name="Label3" type="Label" parent="TabContainer/Graphics/MarginContainer/VBoxContainer"]
+[node name="fps lock" type="Label" parent="TabContainer/Graphics/MarginContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
-text = "3"
+text = "FPS lock"
+
+[node name="FpsOption" type="OptionButton" parent="TabContainer/Graphics/MarginContainer/VBoxContainer/fps lock"]
+layout_mode = 0
+offset_left = 138.0
+offset_top = 7.0
+offset_right = 224.0
+offset_bottom = 27.0
 
 [node name="Label4" type="Label" parent="TabContainer/Graphics/MarginContainer/VBoxContainer"]
 layout_mode = 2
