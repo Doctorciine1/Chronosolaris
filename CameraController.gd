@@ -31,6 +31,9 @@ func _update_mouse_mode():
 		else:
 			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 
+func reset_mouse_mode():
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("pause_menu"):
 		is_paused = !is_paused
