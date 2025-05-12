@@ -1,0 +1,373 @@
+[gd_scene load_steps=10 format=3 uid="uid://270c05r50xn3"]
+
+[sub_resource type="GDScript" id="GDScript_q5k23"]
+script/source = "extends Control
+
+@onready var master_slider: HSlider = $TabContainer/Audio/MarginContainer/VBoxContainer/Label/Master
+@onready var music_slider: HSlider = $TabContainer/Audio/MarginContainer/VBoxContainer/Label2/Music
+@onready var sounds_slider: HSlider = $TabContainer/Audio/MarginContainer/VBoxContainer/Label3/Sounds
+@onready var mute_checkbox: CheckBox = $TabContainer/Audio/MarginContainer/VBoxContainer/Label4/MuteCheckBox
+
+func _on_exit_button_pressed() -> void:
+	get_tree().change_scene_to_file(\"res://main_menu.tscn\")
+
+
+func _ready() -> void:
+	master_slider.value_changed.connect(_on_master_value_changed)
+	music_slider.value_changed.connect(_on_music_value_changed)
+	sounds_slider.value_changed.connect(_on_sounds_value_changed)
+	mute_checkbox.toggled.connect(_on_mute_toggled)
+
+
+
+	load_mute_state()
+	load_current_volumes() # Загружаем текущие значения громкости для отображения
+
+func _on_mute_toggled(button_pressed: bool) -> void:
+	AudioServer.set_bus_mute(AudioServer.get_bus_index(\"Master\"), button_pressed)
+	save_mute_state(button_pressed)
+
+func save_mute_state(is_muted: bool) -> void:
+	var config = ConfigFile.new()
+	config.load(\"user://settings.cfg\")
+	config.set_value(\"audio\", \"muted\", is_muted)
+	config.save(\"user://settings.cfg\")
+
+func load_mute_state() -> void:
+	var config = ConfigFile.new()
+	config.load(\"user://settings.cfg\")
+	if config.has_section_key(\"audio\", \"muted\"):
+		var muted = config.get_value(\"audio\", \"muted\")
+		mute_checkbox.button_pressed = muted
+		AudioServer.set_bus_mute(AudioServer.get_bus_index(\"Master\"), muted)
+	else:
+		mute_checkbox.button_pressed = false
+		AudioServer.set_bus_mute(AudioServer.get_bus_index(\"Master\"), false)
+
+func _on_master_value_changed(value: float) -> void:
+	AudioServer.set_bus_volume_db(AudioServer.get_bus_index(\"Master\"), linear_to_db(value))
+	GameSettings.save_volume(\"master\", value)
+
+func _on_music_value_changed(value: float) -> void:
+	AudioServer.set_bus_volume_db(AudioServer.get_bus_index(\"Music\"), linear_to_db(value))
+	GameSettings.save_volume(\"music\", value)
+
+func _on_sounds_value_changed(value: float) -> void:
+	AudioServer.set_bus_volume_db(AudioServer.get_bus_index(\"Sounds\"), linear_to_db(value))
+	GameSettings.save_volume(\"sounds\", value)
+
+func load_current_volumes() -> void:
+	var master_volume = db_to_linear(AudioServer.get_bus_volume_db(AudioServer.get_bus_index(\"Master\")))
+	master_slider.value = clamp(master_volume, 0.0, 1.0)
+
+	var music_volume = db_to_linear(AudioServer.get_bus_volume_db(AudioServer.get_bus_index(\"Music\")))
+	music_slider.value = clamp(music_volume, 0.0, 1.0)
+
+	var sounds_volume = db_to_linear(AudioServer.get_bus_volume_db(AudioServer.get_bus_index(\"Sounds\")))
+	sounds_slider.value = clamp(sounds_volume, 0.0, 1.0)
+"
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_q5k23"]
+bg_color = Color(0.152941, 0.513726, 0.819608, 0.560784)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vsd10"]
+content_margin_left = 36.0
+content_margin_right = 36.0
+bg_color = Color(0.152941, 0.513726, 0.819608, 0.560784)
+border_color = Color(0.702854, 0.808245, 0.964318, 1)
+border_blend = true
+corner_detail = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_olj1q"]
+bg_color = Color(0.170166, 0.547546, 0.65607, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+shadow_size = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rds6j"]
+bg_color = Color(0.376783, 0.745851, 0.975528, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+shadow_size = 2
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_q5k23"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hojmj"]
+bg_color = Color(0.101961, 0.427451, 0.698039, 0.556863)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+shadow_size = 5
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yaj2q"]
+bg_color = Color(0.152941, 0.513726, 0.819608, 0.560784)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+shadow_size = 5
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_nw4ki"]
+bg_color = Color(0.152941, 0.513726, 0.819608, 0.560784)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+shadow_size = 5
+shadow_offset = Vector2(0, 1)
+
+[node name="Settings_Tab_Container" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = SubResource("GDScript_q5k23")
+
+[node name="TabContainer" type="TabContainer" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 100.0
+offset_top = 50.0
+offset_right = -100.0
+offset_bottom = -100.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 16
+theme_override_styles/panel = SubResource("StyleBoxFlat_q5k23")
+theme_override_styles/tab_selected = SubResource("StyleBoxFlat_vsd10")
+tab_alignment = 1
+current_tab = 2
+
+[node name="Audio" type="TabBar" parent="TabContainer"]
+visible = false
+layout_mode = 2
+tabs_rearrange_group = 1
+metadata/_tab_index = 0
+
+[node name="MarginContainer" type="MarginContainer" parent="TabContainer/Audio"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 156.0
+offset_right = -156.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="VBoxContainer" type="VBoxContainer" parent="TabContainer/Audio/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 64
+alignment = 1
+
+[node name="Label" type="Label" parent="TabContainer/Audio/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Master"
+
+[node name="Master" type="HSlider" parent="TabContainer/Audio/MarginContainer/VBoxContainer/Label"]
+layout_mode = 0
+offset_left = 88.0
+offset_top = 6.0
+offset_right = 576.0
+offset_bottom = 22.0
+theme_override_styles/grabber_area = SubResource("StyleBoxFlat_olj1q")
+theme_override_styles/grabber_area_highlight = SubResource("StyleBoxFlat_rds6j")
+max_value = 1.0
+step = 0.1
+value = 0.5
+
+[node name="Label2" type="Label" parent="TabContainer/Audio/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Music"
+
+[node name="Music" type="HSlider" parent="TabContainer/Audio/MarginContainer/VBoxContainer/Label2"]
+layout_mode = 0
+offset_left = 88.0
+offset_top = 6.0
+offset_right = 576.0
+offset_bottom = 22.0
+theme_override_styles/grabber_area = SubResource("StyleBoxFlat_olj1q")
+theme_override_styles/grabber_area_highlight = SubResource("StyleBoxFlat_rds6j")
+max_value = 1.0
+step = 0.1
+value = 0.5
+
+[node name="Label3" type="Label" parent="TabContainer/Audio/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Sounds"
+
+[node name="Sounds" type="HSlider" parent="TabContainer/Audio/MarginContainer/VBoxContainer/Label3"]
+layout_mode = 0
+offset_left = 88.0
+offset_top = 6.0
+offset_right = 576.0
+offset_bottom = 22.0
+theme_override_styles/grabber_area = SubResource("StyleBoxFlat_olj1q")
+theme_override_styles/grabber_area_highlight = SubResource("StyleBoxFlat_rds6j")
+max_value = 1.0
+step = 0.1
+value = 0.5
+
+[node name="Label4" type="Label" parent="TabContainer/Audio/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Mute"
+
+[node name="MuteCheckBox" type="CheckBox" parent="TabContainer/Audio/MarginContainer/VBoxContainer/Label4"]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 2.0
+offset_right = 100.0
+offset_bottom = 26.0
+
+[node name="Controls" type="TabBar" parent="TabContainer"]
+visible = false
+layout_mode = 2
+metadata/_tab_index = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="TabContainer/Controls"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 156.0
+offset_right = -220.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="VBoxContainer" type="VBoxContainer" parent="TabContainer/Controls/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 64
+alignment = 1
+
+[node name="Label" type="Label" parent="TabContainer/Controls/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "1"
+
+[node name="Label2" type="Label" parent="TabContainer/Controls/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "2"
+
+[node name="Label3" type="Label" parent="TabContainer/Controls/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "3"
+
+[node name="Label4" type="Label" parent="TabContainer/Controls/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "4"
+
+[node name="Graphics" type="TabBar" parent="TabContainer"]
+layout_mode = 2
+metadata/_tab_index = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="TabContainer/Graphics"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 156.0
+offset_right = -220.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="VBoxContainer" type="VBoxContainer" parent="TabContainer/Graphics/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 64
+alignment = 1
+
+[node name="Screen mode" type="Label" parent="TabContainer/Graphics/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Screen mode"
+
+[node name="Brightness" type="Label" parent="TabContainer/Graphics/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Brightness"
+
+[node name="BrightnessSlider" type="HSlider" parent="TabContainer/Graphics/MarginContainer/VBoxContainer/Brightness"]
+layout_mode = 0
+offset_left = 131.0
+offset_top = 7.0
+offset_right = 619.0
+offset_bottom = 23.0
+theme_override_styles/grabber_area = SubResource("StyleBoxFlat_olj1q")
+theme_override_styles/grabber_area_highlight = SubResource("StyleBoxFlat_rds6j")
+min_value = 0.01
+max_value = 2.0
+step = 0.01
+value = 1.0
+editable = false
+
+[node name="fps lock" type="Label" parent="TabContainer/Graphics/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "FPS lock"
+
+[node name="FpsOption" type="OptionButton" parent="TabContainer/Graphics/MarginContainer/VBoxContainer/fps lock"]
+layout_mode = 0
+offset_left = 138.0
+offset_top = 7.0
+offset_right = 224.0
+offset_bottom = 27.0
+
+[node name="Label4" type="Label" parent="TabContainer/Graphics/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "4"
+
+[node name="ExitButton" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 100.0
+offset_top = -66.0
+offset_right = -100.0
+offset_bottom = -26.0
+grow_horizontal = 2
+grow_vertical = 0
+size_flags_vertical = 8
+theme_override_font_sizes/font_size = 20
+theme_override_styles/focus = SubResource("StyleBoxEmpty_q5k23")
+theme_override_styles/hover = SubResource("StyleBoxFlat_hojmj")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_yaj2q")
+theme_override_styles/normal = SubResource("StyleBoxFlat_nw4ki")
+text = "Exit"
+
+[connection signal="toggled" from="TabContainer/Audio/MarginContainer/VBoxContainer/Label4/MuteCheckBox" to="." method="_on_check_box_toggled"]
+[connection signal="pressed" from="ExitButton" to="." method="_on_exit_button_pressed"]
