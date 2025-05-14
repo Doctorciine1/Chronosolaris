@@ -1,0 +1,5 @@
+[gd_scene load_steps=2 format=3 uid="uid://ccpcp1vwaumdv"]
+
+[ext_resource type="PackedScene" uid="uid://bu71td0mx6y6f" path="res://options/window_mode_button.tscn" id="1_x41a5"]
+
+[node name="Resolution_Mode_Button" instance=ExtResource("1_x41a5")]
