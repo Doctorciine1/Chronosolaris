@@ -1,4 +1,6 @@
-[gd_scene load_steps=10 format=3 uid="uid://270c05r50xn3"]
+[gd_scene load_steps=11 format=3 uid="uid://270c05r50xn3"]
+
+[ext_resource type="PackedScene" uid="uid://bu71td0mx6y6f" path="res://options/window_mode_button.tscn" id="1_vsd10"]
 
 [sub_resource type="GDScript" id="GDScript_q5k23"]
 script/source = "extends Control
@@ -303,51 +305,14 @@ theme_override_constants/margin_top = 24
 theme_override_constants/margin_right = 24
 theme_override_constants/margin_bottom = 24
 
-[node name="VBoxContainer" type="VBoxContainer" parent="TabContainer/Graphics/MarginContainer"]
+[node name="ScrollContainer" type="ScrollContainer" parent="TabContainer/Graphics/MarginContainer"]
 layout_mode = 2
-theme_override_constants/separation = 64
-alignment = 1
 
-[node name="Screen mode" type="Label" parent="TabContainer/Graphics/MarginContainer/VBoxContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="TabContainer/Graphics/MarginContainer/ScrollContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "Screen mode"
 
-[node name="Brightness" type="Label" parent="TabContainer/Graphics/MarginContainer/VBoxContainer"]
+[node name="Window_Mode_Button" parent="TabContainer/Graphics/MarginContainer/ScrollContainer/VBoxContainer" instance=ExtResource("1_vsd10")]
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "Brightness"
-
-[node name="BrightnessSlider" type="HSlider" parent="TabContainer/Graphics/MarginContainer/VBoxContainer/Brightness"]
-layout_mode = 0
-offset_left = 131.0
-offset_top = 7.0
-offset_right = 619.0
-offset_bottom = 23.0
-theme_override_styles/grabber_area = SubResource("StyleBoxFlat_olj1q")
-theme_override_styles/grabber_area_highlight = SubResource("StyleBoxFlat_rds6j")
-min_value = 0.01
-max_value = 2.0
-step = 0.01
-value = 1.0
-editable = false
-
-[node name="fps lock" type="Label" parent="TabContainer/Graphics/MarginContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "FPS lock"
-
-[node name="FpsOption" type="OptionButton" parent="TabContainer/Graphics/MarginContainer/VBoxContainer/fps lock"]
-layout_mode = 0
-offset_left = 138.0
-offset_top = 7.0
-offset_right = 224.0
-offset_bottom = 27.0
-
-[node name="Label4" type="Label" parent="TabContainer/Graphics/MarginContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "4"
 
 [node name="ExitButton" type="Button" parent="."]
 layout_mode = 1

@@ -19,6 +19,10 @@ config/features=PackedStringArray("4.4", "Mobile")
 MusicPlayer="*res://MusicPlayer.tscn"
 GameSettings="*res://GameSettings.gd"
 
+[display]
+
+window/size/mode=3
+
 [input]
 
 ui_left={
