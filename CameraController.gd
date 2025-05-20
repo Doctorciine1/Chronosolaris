@@ -61,4 +61,4 @@ func _unhandled_input(event: InputEvent) -> void:
 
 		if result:
 			var hit_obj = result["collider"]
-			print("Ты попал в: ", hit_obj.name)
+			print("Hitted in: ", hit_obj.name)
