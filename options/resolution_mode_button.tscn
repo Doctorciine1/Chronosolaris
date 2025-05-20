@@ -1,5 +1,28 @@
 [gd_scene load_steps=2 format=3 uid="uid://ccpcp1vwaumdv"]
 
-[ext_resource type="PackedScene" uid="uid://bu71td0mx6y6f" path="res://options/window_mode_button.tscn" id="1_x41a5"]
+[ext_resource type="Script" uid="uid://cqun8m0cla5k6" path="res://options/resolution_mode_button.gd" id="1_x41a5"]
 
-[node name="Resolution_Mode_Button" instance=ExtResource("1_x41a5")]
+[node name="Resolution_Mode_Button" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_x41a5")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_constants/separation = -15
+
+[node name="Label" type="Label" parent="HBoxContainer"]
+custom_minimum_size = Vector2(264, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Resolution"
+
+[node name="OptionButton" type="OptionButton" parent="HBoxContainer"]
+custom_minimum_size = Vector2(256, 0)
+layout_mode = 2

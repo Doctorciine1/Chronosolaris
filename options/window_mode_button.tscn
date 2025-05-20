@@ -1,13 +1,28 @@
-[gd_scene load_steps=3 format=3 uid="uid://bu71td0mx6y6f"]
+[gd_scene load_steps=2 format=3 uid="uid://bu71td0mx6y6f"]
 
-[ext_resource type="PackedScene" uid="uid://bj0dxwjcbwfgc" path="res://options/options_display_button.tscn" id="1_6jv1n"]
 [ext_resource type="Script" uid="uid://byfecq6e46vxt" path="res://options/window_mode_button.gd" id="2_oqa32"]
 
-[node name="Window_Mode_Button" instance=ExtResource("1_6jv1n")]
+[node name="Window_Mode_Button" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("2_oqa32")
 
-[node name="Label" parent="HBoxContainer" index="0"]
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_constants/separation = -15
+
+[node name="Label" type="Label" parent="HBoxContainer"]
+custom_minimum_size = Vector2(264, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
 text = "Window Mode"
 
-[node name="OptionButton" parent="HBoxContainer" index="1"]
+[node name="OptionButton" type="OptionButton" parent="HBoxContainer"]
 custom_minimum_size = Vector2(256, 0)
+layout_mode = 2
