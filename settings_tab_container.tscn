@@ -12,17 +12,18 @@ script/source = "extends Control
 @onready var sounds_slider: HSlider = $TabContainer/Audio/MarginContainer/VBoxContainer/Label3/Sounds
 @onready var mute_checkbox: CheckBox = $TabContainer/Audio/MarginContainer/VBoxContainer/Label4/MuteCheckBox
 
-func _on_exit_button_pressed() -> void:
-	get_tree().change_scene_to_file(\"res://main_menu.tscn\")
-
-
 func _ready() -> void:
 	master_slider.value_changed.connect(_on_master_value_changed)
 	music_slider.value_changed.connect(_on_music_value_changed)
 	sounds_slider.value_changed.connect(_on_sounds_value_changed)
 	mute_checkbox.toggled.connect(_on_mute_toggled)
+	var exit_button = $ExitButton
+	if exit_button:
+		exit_button.pressed.connect(_on_exit_button_pressed)
 
-
+func _on_exit_button_pressed() -> void:
+	SoundManager.play_button_click_sound()
+	get_tree().change_scene_to_file(\"res://main_menu.tscn\")
 
 	load_mute_state()
 	load_current_volumes() # Загружаем текущие значения громкости для отображения
@@ -155,10 +156,9 @@ theme_override_font_sizes/font_size = 16
 theme_override_styles/panel = SubResource("StyleBoxFlat_q5k23")
 theme_override_styles/tab_selected = SubResource("StyleBoxFlat_vsd10")
 tab_alignment = 1
-current_tab = 2
+current_tab = 0
 
 [node name="Audio" type="TabBar" parent="TabContainer"]
-visible = false
 layout_mode = 2
 tabs_rearrange_group = 1
 metadata/_tab_index = 0
@@ -290,6 +290,7 @@ theme_override_font_sizes/font_size = 20
 text = "4"
 
 [node name="Graphics" type="TabBar" parent="TabContainer"]
+visible = false
 layout_mode = 2
 metadata/_tab_index = 2
 
@@ -344,4 +345,3 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_nw4ki")
 text = "Exit"
 
 [connection signal="toggled" from="TabContainer/Audio/MarginContainer/VBoxContainer/Label4/MuteCheckBox" to="." method="_on_check_box_toggled"]
-[connection signal="pressed" from="ExitButton" to="." method="_on_exit_button_pressed"]

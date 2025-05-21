@@ -109,7 +109,3 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_05uyy")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_p81d2")
 theme_override_styles/normal = SubResource("StyleBoxFlat_2nc7s")
 text = "LEAVE TO MENU"
-
-[connection signal="pressed" from="VBoxContainer/ContinueButton" to="." method="_on_continue_button_pressed"]
-[connection signal="pressed" from="VBoxContainer/SettingsButton" to="." method="_on_settings_button_pressed"]
-[connection signal="pressed" from="VBoxContainer/MainMenuButton" to="." method="_on_main_menu_button_pressed"]
