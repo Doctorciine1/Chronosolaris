@@ -52,15 +52,87 @@ var time_speed = 0.1
 var moon_distance = 784400 / distance_scale
 var moon_speed = 13.176
 
+# --- Словарь для хранения специфических настроек Label3D для каждой планеты ---
+# Вернул более адекватные размеры, так как fixed_size будет работать!
+var planet_label_settings = {
+	\"Mercury\": {
+		\"font_size\": 42,
+		\"pixel_size\": 0.0008, # Это значение будет \"фиксированным\"
+		\"outline_size\": 2,
+		\"color\": Color.WHITE,
+		\"offset_y\": 100 # Сделал немного повыше, чтобы было видно
+	},
+	\"Venus\": {
+		\"font_size\": 42,
+		\"pixel_size\": 0.0008,
+		\"outline_size\": 2,
+		\"color\": Color.YELLOW,
+		\"offset_y\": 100
+	},
+	\"Earth\": {
+		\"font_size\": 42,
+		\"pixel_size\": 0.0008,
+		\"outline_size\": 2,
+		\"color\": Color.CYAN,
+		\"offset_y\": 100
+	},
+	\"Mars\": {
+		\"font_size\": 42,
+		\"pixel_size\": 0.0008,
+		\"outline_size\": 2,
+		\"color\": Color.RED,
+		\"offset_y\": 100
+	},
+	\"Jupiter\": {
+		\"font_size\": 42,
+		\"pixel_size\": 0.0012,
+		\"outline_size\": 3,
+		\"color\": Color.ORANGE,
+		\"offset_y\": 100
+	},
+	\"Saturn\": {
+		\"font_size\": 42,
+		\"pixel_size\": 0.0012,
+		\"outline_size\": 3,
+		\"color\": Color.WHEAT,
+		\"offset_y\": 400
+	},
+	\"Uranus\": {
+		\"font_size\": 42,
+		\"pixel_size\": 0.0005,
+		\"outline_size\": 2,
+		\"color\": Color.LIGHT_BLUE,
+		\"offset_y\": 100
+	},
+	\"Neptune\": {
+		\"font_size\": 42,
+		\"pixel_size\": 0.001,
+		\"outline_size\": 2,
+		\"color\": Color.BLUE,
+		\"offset_y\": 100
+	}
+}
+
+
 func _ready():
 	place_planets()
 	draw_all_orbits()
+	
+	var planets_node = $\"SolarSystem/Planets\"
+	if !planets_node:
+		push_error(\"Узел 'SolarSystem/Planets' не найден. Проверьте путь.\")
+		return
+
+	for planet_name in distances.keys():
+		var planet_node = planets_node.get_node_or_null(planet_name)
+		if planet_node:
+			add_planet_label_to_node(planet_node, planet_name)
 
 
 func _process(delta):
 	time_passed += delta * time_speed
 	var sun_position = Vector3.ZERO
-	var planets_node = $SolarSystem/Planets
+	var planets_node = $\"SolarSystem/Planets\"
 
 	for planet_name in distances.keys():
 		var planet = planets_node.get_node(planet_name)
@@ -77,9 +149,10 @@ func _process(delta):
 		if planet_name == \"Earth\":
 			move_moon(planet)
 
+
 func place_planets():
 	var sun_position = Vector3.ZERO
-	var planets_node = $SolarSystem/Planets
+	var planets_node = $\"SolarSystem/Planets\"
 
 	for planet_name in distances.keys():
 		var planet = planets_node.get_node(planet_name)
@@ -98,13 +171,13 @@ func move_moon(earth_node):
 	moon_node.position = Vector3(x, 0, z)
 
 func draw_all_orbits():
-	var existing = $SolarSystem.get_node_or_null(\"Orbits\")
+	var existing = $\"SolarSystem\".get_node_or_null(\"Orbits\")
 	if existing:
 		existing.queue_free()
 
 	var orbits = Node3D.new()
 	orbits.name = \"Orbits\"
-	$SolarSystem.add_child(orbits)
+	$\"SolarSystem\".add_child(orbits)
 
 	for planet_name in distances.keys():
 		var distance_km = distances[planet_name] * 104.6e6
@@ -138,12 +211,53 @@ func draw_orbit(radius: float) -> MeshInstance3D:
 	mesh_instance.material_override = mat
 
 	return mesh_instance
+
+# --- ФУНКЦИЯ: Добавляет Label3D к указанному узлу планеты ---
+func add_planet_label_to_node(planet_node: Node3D, planet_name: String):
+	var label = Label3D.new()
+	label.text = planet_name
+	
+	# --- БАЗОВЫЕ ЗНАЧЕНИЯ ---
+	label.font_size = 20
+	label.pixel_size = 0.05 # Это значение теперь будет фиксированным размером
+	label.outline_size = 2
+	label.modulate = Color.WHITE
+	
+	# --- БИЛБОРД И ФИКСИРОВАННЫЙ РАЗМЕР ---
+	label.billboard = true # Всегда смотрит на камеру
+	label.fixed_size = true # !!! ВОТ ЭТА СТРОКА !!! Метка будет сохранять свой размер на экране
+	
+	var offset_y_from_settings = 0.0
+
+	if planet_label_settings.has(planet_name):
+		var settings = planet_label_settings[planet_name]
+		label.font_size = settings.get(\"font_size\", label.font_size)
+		label.pixel_size = settings.get(\"pixel_size\", label.pixel_size)
+		label.outline_size = settings.get(\"outline_size\", label.outline_size)
+		label.modulate = settings.get(\"color\", label.modulate)
+		offset_y_from_settings = settings.get(\"offset_y\", 0.0)
+
+	# --- Определение положения метки над планетой ---
+	var mesh_instance: MeshInstance3D = null
+	if planet_node is MeshInstance3D:
+		mesh_instance = planet_node
+	elif planet_node.has_node(\"MeshInstance3D\"):
+		mesh_instance = planet_node.get_node(\"MeshInstance3D\")
+
+	if mesh_instance:
+		var mesh_aabb = mesh_instance.get_aabb()
+		label.position = Vector3(0, mesh_aabb.size.y / 2.0 + offset_y_from_settings, 0)
+	else:
+		label.position = Vector3(0, 5.0 + offset_y_from_settings, 0) # Вернул по умолчанию 5.0
+
+	label.visible = true
+	planet_node.add_child(label)
 "
 
 [sub_resource type="GDScript" id="GDScript_gd4vy"]
 script/source = "extends CharacterBody3D
 
-const SPEED = 700.0
+const SPEED = 1000.0
 const SPRINT_MULTIPLIER = 2.0
 const MOUSE_SENSITIVITY = 0.002
 
@@ -236,14 +350,31 @@ transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
 [node name="Sun" parent="SolarSystem" instance=ExtResource("2_nr6uu")]
 transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 0, 0, 0)
 
+[node name="Label3D" type="Label3D" parent="SolarSystem/Sun"]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 4630.39, 0)
+billboard = 1
+fixed_size = true
+text = "Sun"
+font_size = 175
+
 [node name="Planets" type="Node3D" parent="SolarSystem"]
 transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 0, 0, 0)
 
 [node name="Earth" parent="SolarSystem/Planets" instance=ExtResource("3_vw1ju")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 8604.54)
 skeleton = NodePath("../../..")
 
 [node name="Moon" parent="SolarSystem/Planets/Earth" instance=ExtResource("4_28aoi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 78.4502)
 skeleton = NodePath("../../../..")
+
+[node name="Label3D" type="Label3D" parent="SolarSystem/Planets/Earth/Moon"]
+transform = Transform3D(0.11, 0, 0, 0, 0.11, 0, 0, 0, 0.11, 0, 25.2699, -0.254883)
+visibility_range_end = 496.48
+billboard = 1
+fixed_size = true
+text = "Moon"
+font_size = 107
 
 [node name="Mercury" parent="SolarSystem/Planets" instance=ExtResource("5_jnlp7")]
 skeleton = NodePath("../../..")
